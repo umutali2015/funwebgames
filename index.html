@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fun Web Games</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#FF6B6B',secondary:'#4ECDC4'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+@keyframes colorChange {
+0% { color: #FFD166; }
+33% { color: #06D6A0; }
+66% { color: #FF9F1C; }
+100% { color: #FFD166; }
+}
+.title-letter {
+display: inline-block;
+font-family: 'Fredoka', sans-serif;
+font-weight: 700;
+animation: colorChange 6s infinite;
+animation-fill-mode: both;
+}
+.title-letter:nth-child(1) { animation-delay: 0.0s; }
+.title-letter:nth-child(2) { animation-delay: 0.1s; }
+.title-letter:nth-child(3) { animation-delay: 0.2s; }
+.title-letter:nth-child(4) { animation-delay: 0.3s; }
+.title-letter:nth-child(5) { animation-delay: 0.4s; }
+.title-letter:nth-child(6) { animation-delay: 0.5s; }
+.title-letter:nth-child(7) { animation-delay: 0.6s; }
+.title-letter:nth-child(8) { animation-delay: 0.7s; }
+.title-letter:nth-child(9) { animation-delay: 0.8s; }
+.title-letter:nth-child(10) { animation-delay: 0.9s; }
+.title-letter:nth-child(11) { animation-delay: 1.0s; }
+.title-letter:nth-child(12) { animation-delay: 1.1s; }
+.title-letter:nth-child(13) { animation-delay: 1.2s; }
+.game-card {
+transition: all 0.3s ease;
+}
+.game-card:hover {
+transform: scale(1.03);
+}
+.game-card.active {
+border: 2px solid #FFD166;
+box-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+}
+.game-container {
+background-color: #FFFFFF;
+border: 2px solid #E0E0E0;
+border-radius: 8px;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+position: relative;
+}
+.game-list::-webkit-scrollbar {
+width: 6px;
+}
+.game-list::-webkit-scrollbar-track {
+background: #f1f1f1;
+border-radius: 10px;
+}
+.game-list::-webkit-scrollbar-thumb {
+background: #FFD166;
+border-radius: 10px;
+}
+.game-list::-webkit-scrollbar-thumb:hover {
+background: #FF9F1C;
+}
+@media (max-width: 768px) {
+.game-list-container {
+overflow-x: auto;
+white-space: nowrap;
+display: flex;
+padding: 10px 0;
+}
+.game-card {
+display: inline-block;
+width: 200px;
+flex-shrink: 0;
+margin-right: 10px;
+}
+}
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+<!-- Header Section -->
+<header class="text-center mb-8">
+<h1 class="text-5xl mb-2 leading-tight">
+<span class="title-letter">F</span>
+<span class="title-letter">u</span>
+<span class="title-letter">n</span>
+<span class="title-letter"> </span>
+<span class="title-letter">W</span>
+<span class="title-letter">e</span>
+<span class="title-letter">b</span>
+<span class="title-letter"> </span>
+<span class="title-letter">G</span>
+<span class="title-letter">a</span>
+<span class="title-letter">m</span>
+<span class="title-letter">e</span>
+<span class="title-letter">s</span>
+</h1>
+<p class="text-gray-600 italic text-sm mb-4">by Ali Umut C</p>
+<p class="text-lg text-gray-700 max-w-2xl mx-auto">
+Merhaba, eğlenceli ve eğitici oyunlarımdan birini seçin ve "Başlat" a tıklayın!<br>
+Hello, select one of my fun and educational games and click the "Start"!
+</p>
+</header>
+<!-- Main Content Section -->
+<div class="flex flex-col md:flex-row gap-5">
+<!-- Game Container (75%) -->
+<div class="w-full md:w-3/4">
+<div id="game-container" class="game-container w-full aspect-video min-h-[600px] flex items-center justify-center flex-col p-4">
+<div class="w-16 h-16 flex items-center justify-center text-gray-400 mb-4">
+<i class="ri-gamepad-line ri-3x"></i>
+</div>
+<p class="text-gray-500 text-lg text-center">Oynamak için bir oyun seçin</p>
+<div id="game-frame" class="w-full h-full hidden"></div>
+<div class="mt-4 hidden" id="game-controls">
+<button id="start-game" class="bg-primary text-white px-4 py-2 !rounded-button mr-2 whitespace-nowrap">
+<i class="ri-play-line mr-1"></i> Başlat
+</button>
+<button id="restart-game" class="bg-gray-200 text-gray-700 px-4 py-2 !rounded-button mr-2 whitespace-nowrap">
+<i class="ri-restart-line mr-1"></i> Yeniden Başlat
+</button>
+<button id="fullscreen-game" class="bg-gray-200 text-gray-700 px-4 py-2 !rounded-button whitespace-nowrap">
+<i class="ri-fullscreen-line mr-1"></i> Tam Ekran
+</button>
+</div>
+</div>
+</div>
+<!-- Game List (25%) -->
+<div class="w-full md:w-1/4">
+<div class="bg-white rounded-lg p-4 shadow-sm">
+<h2 class="text-xl font-bold mb-4 text-gray-800">Oyun Listesi</h2>
+<div class="game-list overflow-y-auto max-h-[600px]">
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game1">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%201%20placeholder&width=400&height=200&seq=1&orientation=landscape" alt="Oyun 1" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 1</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game2">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%202%20placeholder&width=400&height=200&seq=2&orientation=landscape" alt="Oyun 2" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 2</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game3">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%203%20placeholder&width=400&height=200&seq=3&orientation=landscape" alt="Oyun 3" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 3</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game4">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%204%20placeholder&width=400&height=200&seq=4&orientation=landscape" alt="Oyun 4" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 4</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game5">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%205%20placeholder&width=400&height=200&seq=5&orientation=landscape" alt="Oyun 5" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 5</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game6">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%206%20placeholder&width=400&height=200&seq=6&orientation=landscape" alt="Oyun 6" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 6</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game7">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%207%20placeholder&width=400&height=200&seq=7&orientation=landscape" alt="Oyun 7" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 7</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game8">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%208%20placeholder&width=400&height=200&seq=8&orientation=landscape" alt="Oyun 8" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 8</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game9">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%209%20placeholder&width=400&height=200&seq=9&orientation=landscape" alt="Oyun 9" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 9</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+<div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game10">
+<div class="h-20 bg-gray-200 relative">
+<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%2010%20placeholder&width=400&height=200&seq=10&orientation=landscape" alt="Oyun 10" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-2">
+<h3 class="font-medium text-gray-800">Oyun 10</h3>
+<p class="text-xs text-gray-500">Oyun açıklaması</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script id="game-selection-script">
+document.addEventListener('DOMContentLoaded', function() {
+const gameCards = document.querySelectorAll('.game-card');
+const gameContainer = document.getElementById('game-container');
+const gameFrame = document.getElementById('game-frame');
+const gameControls = document.getElementById('game-controls');
+const startButton = document.getElementById('start-game');
+const restartButton = document.getElementById('restart-game');
+const fullscreenButton = document.getElementById('fullscreen-game');
+let selectedGame = null;
+let gameActive = false;
+// Game selection
+gameCards.forEach(card => {
+card.addEventListener('click', function() {
+// Remove active class from all cards
+gameCards.forEach(c => c.classList.remove('active'));
+// Add active class to selected card
+this.classList.add('active');
+// Store selected game
+selectedGame = this.getAttribute('data-game');
+// Update game container
+gameFrame.classList.add('hidden');
+gameContainer.querySelector('p').textContent = `"${this.querySelector('h3').textContent}" oyununu başlatmak için Başlat düğmesine tıklayın`;
+gameContainer.querySelector('i').className = 'ri-gamepad-line ri-3x';
+gameControls.classList.remove('hidden');
+// Reset game state
+gameActive = false;
+});
+});
+// Start game button
+startButton.addEventListener('click', function() {
+if (!selectedGame) return;
+gameActive = true;
+gameFrame.classList.remove('hidden');
+gameContainer.querySelector('p').classList.add('hidden');
+gameContainer.querySelector('div').classList.add('hidden');
+// Load game content based on selected game
+loadGame(selectedGame);
+});
+// Restart game button
+restartButton.addEventListener('click', function() {
+if (!selectedGame || !gameActive) return;
+// Reload current game
+loadGame(selectedGame);
+});
+// Fullscreen button
+fullscreenButton.addEventListener('click', function() {
+if (!gameContainer.requestFullscreen) {
+if (gameContainer.webkitRequestFullscreen) {
+gameContainer.webkitRequestFullscreen();
+} else if (gameContainer.msRequestFullscreen) {
+gameContainer.msRequestFullscreen();
+}
+} else {
+gameContainer.requestFullscreen();
+}
+});
+// Function to load game content
+function loadGame(game) {
+// Clear previous game content
+gameFrame.innerHTML = '';
+// Simple placeholder games
+switch(game) {
+case 'game1':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 1 yükleniyor...</p></div>';
+break;
+case 'game2':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 2 yükleniyor...</p></div>';
+break;
+case 'game3':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 3 yükleniyor...</p></div>';
+break;
+case 'game4':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 4 yükleniyor...</p></div>';
+break;
+case 'game5':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 5 yükleniyor...</p></div>';
+break;
+case 'game6':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 6 yükleniyor...</p></div>';
+break;
+case 'game7':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 7 yükleniyor...</p></div>';
+break;
+case 'game8':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 8 yükleniyor...</p></div>';
+break;
+case 'game9':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 9 yükleniyor...</p></div>';
+break;
+case 'game10':
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 10 yükleniyor...</p></div>';
+break;
+default:
+gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun bulunamadı</p></div>';
+}
+}
+// Create Snake game HTML
+function createSnakeGame() {
+return `
+<div class="w-full h-full flex flex-col items-center justify-center">
+<div class="mb-4">
+<span class="text-lg font-medium">Puan: <span id="snake-score">0</span></span>
+</div>
+<canvas id="snake-canvas" class="border border-gray-300" width="400" height="400"></canvas>
+<div class="mt-4 text-sm text-gray-600">
+Yön tuşlarını kullanarak yılanı hareket ettirin. Kırmızı noktaları toplayın.
+</div>
+</div>
+`;
+}
+// Initialize Snake game
+function initSnakeGame() {
+const canvas = document.getElementById('snake-canvas');
+if (!canvas) return;
+const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('snake-score');
+const gridSize = 20;
+const tileCount = canvas.width / gridSize;
+let snake = [
+{x: 10, y: 10}
+];
+let food = {
+x: Math.floor(Math.random() * tileCount),
+y: Math.floor(Math.random() * tileCount)
+};
+let dx = 0;
+let dy = 0;
+let score = 0;
+let gameOver = false;
+function drawGame() {
+if (gameOver) {
+ctx.fillStyle = 'rgba(0,0,0,0.5)';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = 'white';
+ctx.font = '30px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('Oyun Bitti!', canvas.width/2, canvas.height/2);
+return;
+}
+// Move snake
+moveSnake();
+// Clear canvas
+ctx.fillStyle = '#f8f8f8';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Draw food
+ctx.fillStyle = '#FF6B6B';
+ctx.beginPath();
+ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2, 0, Math.PI * 2);
+ctx.fill();
+// Draw snake
+ctx.fillStyle = '#4ECDC4';
+snake.forEach((segment, index) => {
+if (index === 0) {
+// Head
+ctx.fillStyle = '#06D6A0';
+} else {
+ctx.fillStyle = '#4ECDC4';
+}
+ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+ctx.strokeStyle = '#f8f8f8';
+ctx.strokeRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+});
+// Check collision with food
+if (snake[0].x === food.x && snake[0].y === food.y) {
+// Grow snake
+const tail = {...snake[snake.length - 1]};
+snake.push(tail);
+// New food
+food = {
+x: Math.floor(Math.random() * tileCount),
+y: Math.floor(Math.random() * tileCount)
+};
+// Update score
+score += 10;
+scoreElement.textContent = score;
+}
+// Schedule next frame
+setTimeout(drawGame, 100);
+}
+function moveSnake() {
+// Create new head
+const head = {
+x: snake[0].x + dx,
+y: snake[0].y + dy
+};
+// Check wall collision
+if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+gameOver = true;
+return;
+}
+// Check self collision
+for (let i = 1; i < snake.length; i++) {
+if (head.x === snake[i].x && head.y === snake[i].y) {
+gameOver = true;
+return;
+}
+}
+// Add new head
+snake.unshift(head);
+// Remove tail if not growing
+if (dx !== 0 || dy !== 0) {
+snake.pop();
+}
+}
+// Keyboard controls
+document.addEventListener('keydown', function(e) {
+// Prevent scrolling with arrow keys
+if ([37, 38, 39, 40].includes(e.keyCode)) {
+e.preventDefault();
+}
+// Left
+if (e.keyCode === 37 && dx === 0) {
+dx = -1;
+dy = 0;
+}
+// Up
+else if (e.keyCode === 38 && dy === 0) {
+dx = 0;
+dy = -1;
+}
+// Right
+else if (e.keyCode === 39 && dx === 0) {
+dx = 1;
+dy = 0;
+}
+// Down
+else if (e.keyCode === 40 && dy === 0) {
+dx = 0;
+dy = 1;
+}
+});
+// Start game
+drawGame();
+}
+});
+</script>
+</body>
+</html>
