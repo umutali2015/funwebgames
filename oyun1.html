@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balon Kılıcı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .score-panel, .level-panel {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 4px solid #ff4444;
+            display: none;
+            z-index: 100;
+        }
+
+        .game-over h2 {
+            color: #ff4444;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .restart-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #45a049;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 4px solid #4CAF50;
+            z-index: 100;
+        }
+
+        .start-screen h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .instructions {
+            margin: 20px 0;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .start-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #45a049;
+        }
+
+        @media (max-width: 768px) {
+            .ui-overlay {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+            .score-panel, .level-panel {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="score-panel">
+                <div>Skor: <span id="score">0</span></div>
+            </div>
+            <div class="level-panel">
+                <div>Seviye: <span id="level">1</span></div>
+                <div>Hedef: <span id="target">20</span></div>
+            </div>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <h1>🗡️ Balon Kılıcı 🎈</h1>
+            <div class="instructions">
+                <p><strong>Nasıl Oynanır:</strong></p>
+                <p>• Fareyle veya parmağınla çizgi çizerek balonları kesin</p>
+                <p>• <span style="color: #333;">⚫ Siyah balon:</span> +1 puan</p>
+                <p>• <span style="color: #fff;">⚪ Beyaz balon:</span> +3 puan (düşerse oyun biter!)</p>
+                <p>• <span style="color: #f44;">🔴 Kırmızı balon:</span> +9 puan (bazıları tehlikeli!)</p>
+                <p>• Her seviyede hız artar!</p>
+            </div>
+            <button class="start-btn" onclick="startGame()">Oyunu Başlat</button>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2>Oyun Bitti!</h2>
+            <p>Final Skorunuz: <span id="finalScore">0</span></p>
+            <p>Ulaştığınız Seviye: <span id="finalLevel">1</span></p>
+            <button class="restart-btn" onclick="restartGame()">Tekrar Oyna</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas boyutlarını ayarla
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Oyun değişkenleri
+        let gameState = 'start'; // 'start', 'playing', 'gameOver'
+        let score = 0;
+        let level = 1;
+        let balloons = [];
+        let slashPath = [];
+        let isSlashing = false;
+        let animationFrameId;
+
+        // Seviye hedefleri
+        const levelTargets = [20, 30, 50, 80, 130, 210, 330, 540, 870];
+        
+        // Arka plan renkleri (her seviye için)
+        const backgroundColors = [
+            ['#1e3c72', '#2a5298'], // Seviye 1
+            ['#ff7e5f', '#feb47b'], // Seviye 2
+            ['#6a11cb', '#2575fc'], // Seviye 3
+            ['#ff9a9e', '#fecfef'], // Seviye 4
+            ['#a8edea', '#fed6e3'], // Seviye 5
+            ['#ffecd2', '#fcb69f'], // Seviye 6
+            ['#667eea', '#764ba2'], // Seviye 7
+            ['#f093fb', '#f5576c'], // Seviye 8
+            ['#4facfe', '#00f2fe']  // Seviye 9
+        ];
+
+        // Balon sınıfı
+        class Balloon {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 60) + 30;
+                this.y = -30;
+                this.radius = 20 + Math.random() * 10;
+                this.type = this.getRandomType();
+                this.speed = this.getSpeed();
+                this.isDangerous = this.checkIfDangerous();
+                this.isPopped = false;
+            }
+
+            getRandomType() {
+                const rand = Math.random();
+                if (rand < 0.7) return 'black'; // %70 siyah
+                if (rand < 0.85) return 'white'; // %15 beyaz
+                return 'red'; // %15 kırmızı
+            }
+
+            getSpeed() {
+                const baseSpeed = 1 + (level - 1) * 0.3;
+                return Math.random() < 0.8 ? baseSpeed : baseSpeed * 1.8; // %20 hızlı
+            }
+
+            checkIfDangerous() {
+                if (this.type === 'white') return true;
+                if (this.type === 'red') return Math.random() < 0.3; // %30 şans
+                return false;
+            }
+
+            update() {
+                this.y += this.speed;
+            }
+
+            draw() {
+                if (this.isPopped) return;
+
+                // Balon gövdesi
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                if (this.type === 'black') {
+                    ctx.fillStyle = '#333';
+                } else if (this.type === 'white') {
+                    ctx.fillStyle = '#fff';
+                } else {
+                    ctx.fillStyle = '#ff4444';
+                }
+                
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Balon ipi
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y + this.radius);
+                ctx.lineTo(this.x, this.y + this.radius + 20);
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Tehlikeli balonlar için uyarı işareti
+                if (this.isDangerous && this.type === 'red') {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('!', this.x, this.y - this.radius - 5);
+                }
+            }
+
+            checkCollisionWithSlash(slashPoints) {
+                for (let point of slashPoints) {
+                    const dx = point.x - this.x;
+                    const dy = point.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < this.radius + 5) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            pop() {
+                this.isPopped = true;
+                
+                // Ses efekti (basit)
+                playSlashSound();
+                
+                // Skor hesaplama
+                if (this.type === 'black') {
+                    score += 1;
+                } else if (this.type === 'white') {
+                    score += 3;
+                } else if (this.type === 'red') {
+                    score += 9;
+                }
+                
+                updateUI();
+                checkLevelUp();
+            }
+
+            isOffScreen() {
+                return this.y > canvas.height + 50;
+            }
+
+            reachedBottom() {
+                return this.y > canvas.height - this.radius;
+            }
+        }
+
+        // Ses efekti (basit implementasyon)
+        function playSlashSound() {
+            // Web Audio API ile basit bir ıslık sesi
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Arka planı çiz
+        function drawBackground() {
+            const colors = backgroundColors[Math.min(level - 1, backgroundColors.length - 1)];
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(1, colors[1]);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Basit desen ekle
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 100 + Date.now() * 0.01) % (canvas.width + 100);
+                const y = (i * 80) % canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Çizgi çiz
+        function drawSlash() {
+            if (slashPath.length < 2) return;
+            
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(slashPath[0].x, slashPath[0].y);
+            
+            for (let i = 1; i < slashPath.length; i++) {
+                ctx.lineTo(slashPath[i].x, slashPath[i].y);
+            }
+            
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        // Balon oluştur
+        function createBalloon() {
+            if (Math.random() < 0.02 + level * 0.005) { // Seviye arttıkça daha sık balon
+                balloons.push(new Balloon());
+            }
+        }
+
+        // UI güncelle
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('target').textContent = levelTargets[level - 1] || 'MAX';
+        }
+
+        // Seviye kontrolü
+        function checkLevelUp() {
+            if (level <= levelTargets.length && score >= levelTargets[level - 1]) {
+                level++;
+                updateUI();
+            }
+        }
+
+        // Oyun döngüsü
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            
+            // Arka planı temizle
+            drawBackground();
+            
+            // Yeni balonlar oluştur
+            createBalloon();
+            
+            // Balonları güncelle ve çiz
+            for (let i = balloons.length - 1; i >= 0; i--) {
+                const balloon = balloons[i];
+                balloon.update();
+                balloon.draw();
+                
+                // Ekran dışına çıktıysa sil
+                if (balloon.isOffScreen()) {
+                    balloons.splice(i, 1);
+                    continue;
+                }
+                
+                // Alt kısma ulaştıysa oyun bitirme kontrolü
+                if (balloon.reachedBottom() && !balloon.isPopped) {
+                    if (balloon.isDangerous) {
+                        gameOver();
+                        return;
+                    }
+                }
+                
+                // Çizgi ile kesişme kontrolü
+                if (slashPath.length > 0 && balloon.checkCollisionWithSlash(slashPath) && !balloon.isPopped) {
+                    balloon.pop();
+                }
+            }
+            
+            // Çizgiyi çiz
+            drawSlash();
+            
+            // Çizgi yolunu temizle (kısa tutmak için)
+            if (slashPath.length > 10) {
+                slashPath = slashPath.slice(-5);
+            }
+            
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // Mouse/Touch eventi
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        // Mouse olayları
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameState !== 'playing') return;
+            isSlashing = true;
+            slashPath = [getEventPos(e)];
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameState !== 'playing' || !isSlashing) return;
+            slashPath.push(getEventPos(e));
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isSlashing = false;
+            setTimeout(() => slashPath = [], 100);
+        });
+
+        // Touch olayları
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState !== 'playing') return;
+            isSlashing = true;
+            slashPath = [getEventPos(e)];
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (gameState !== 'playing' || !isSlashing) return;
+            slashPath.push(getEventPos(e));
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isSlashing = false;
+            setTimeout(() => slashPath = [], 100);
+        });
+
+        // Oyun fonksiyonları
+        function startGame() {
+            gameState = 'playing';
+            document.getElementById('startScreen').style.display = 'none';
+            gameLoop();
+        }
+
+        function gameOver() {
+            gameState = 'gameOver';
+            cancelAnimationFrame(animationFrameId);
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            score = 0;
+            level = 1;
+            balloons = [];
+            slashPath = [];
+            isSlashing = false;
+            
+            updateUI();
+            document.getElementById('gameOver').style.display = 'none';
+            
+            gameState = 'playing';
+            gameLoop();
+        }
+
+        // Başlangıç UI güncellemesi
+        updateUI();
+    </script>
+</body>
+</html>
