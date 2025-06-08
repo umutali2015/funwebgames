@@ -107,8 +107,8 @@ margin-right: 10px;
 </h1>
 <p class="text-gray-600 italic text-sm mb-4">by Ali Umut C</p>
 <p class="text-lg text-gray-700 max-w-2xl mx-auto">
-Merhaba, eğlenceli ve eğitici oyunlarımdan birini seçin ve "Başlat" a tıklayın!<br>
-Hello, select one of my fun and educational games and click the "Start"!
+Merhaba, eğlenceli ve eğitici oyunlar için bir oyun seçin ve "Başlat" düğmesine tıklayın!<br>
+Hello, select a game for fun and educational games and click the "Start" button!
 </p>
 </header>
 <!-- Main Content Section -->
@@ -141,11 +141,11 @@ Hello, select one of my fun and educational games and click the "Start"!
 <div class="game-list overflow-y-auto max-h-[600px]">
 <div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game1">
 <div class="h-20 bg-gray-200 relative">
-<img src="https://readdy.ai/api/search-image?query=colorful%20educational%20game%20interface%20with%20bright%20colors%20and%20simple%20design%2C%20game%201%20placeholder&width=400&height=200&seq=1&orientation=landscape" alt="Oyun 1" class="w-full h-full object-cover object-top">
+<img src="https://readdy.ai/api/search-image?query=balloon%20slash%20game%20colorful%20balloons%20sword%20game&width=400&height=200&seq=1&orientation=landscape" alt="Balon Kılıcı" class="w-full h-full object-cover object-top">
 </div>
 <div class="p-2">
-<h3 class="font-medium text-gray-800">Oyun 1</h3>
-<p class="text-xs text-gray-500">Oyun açıklaması</p>
+<h3 class="font-medium text-gray-800">🎈 Balon Kılıcı</h3>
+<p class="text-xs text-gray-500">Kılıçla balonları kes ve puan kazan!</p>
 </div>
 </div>
 <div class="game-card cursor-pointer bg-white rounded-md shadow-sm overflow-hidden mb-4" data-game="game2">
@@ -297,9 +297,53 @@ function loadGame(game) {
 gameFrame.innerHTML = '';
 // Simple placeholder games
 switch(game) {
+// Satır 261'deki case 'game1': kısmını bu kodla değiştirin:
+
+// SATIR 261'deki case 'game1': kısmını bu kodla değiştirin:
+
 case 'game1':
-gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 1 yükleniyor...</p></div>';
-break;
+    gameFrame.innerHTML = `
+        <div class="w-full h-full relative overflow-hidden">
+            <canvas id="balloonCanvas" style="width: 100%; height: 100%; cursor: crosshair; image-rendering: pixelated;"></canvas>
+            
+            <!-- UI Overlay -->
+            <div style="position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 10; pointer-events: none;">
+                <div style="background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 20px; border-radius: 15px; font-size: 18px; font-weight: bold; border: 3px solid #fff;">
+                    <div>Skor: <span id="balloonScore">0</span></div>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 20px; border-radius: 15px; font-size: 18px; font-weight: bold; border: 3px solid #fff;">
+                    <div>Seviye: <span id="balloonLevel">1</span></div>
+                    <div style="font-size: 14px;">Hedef: <span id="balloonTarget">20</span></div>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="balloonGameOver" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); color: white; padding: 40px; border-radius: 20px; text-align: center; border: 4px solid #ff4444; display: none; z-index: 100;">
+                <h2 style="color: #ff4444; margin-bottom: 20px; font-size: 28px;">Oyun Bitti!</h2>
+                <p style="margin-bottom: 10px;">Final Skorunuz: <span id="balloonFinalScore">0</span></p>
+                <p style="margin-bottom: 20px;">Ulaştığınız Seviye: <span id="balloonFinalLevel">1</span></p>
+                <button onclick="restartBalloonGame()" style="background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer;">Tekrar Oyna</button>
+            </div>
+
+            <!-- Start Screen -->
+            <div id="balloonStartScreen" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); color: white; padding: 40px; border-radius: 20px; text-align: center; border: 4px solid #4CAF50; z-index: 100;">
+                <h1 style="color: #4CAF50; margin-bottom: 20px; font-size: 32px;">🗡️ Balon Kılıcı 🎈</h1>
+                <div style="margin: 20px 0; text-align: left; font-size: 16px; line-height: 1.6;">
+                    <p style="font-weight: bold; margin-bottom: 10px;">Nasıl Oynanır:</p>
+                    <p>• Fareyle veya parmağınla çizgi çizerek balonları kesin</p>
+                    <p>• <span style="color: #333;">⚫ Siyah balon:</span> +1 puan</p>
+                    <p>• <span style="color: #fff;">⚪ Beyaz balon:</span> +3 puan (düşerse oyun biter!)</p>
+                    <p>• <span style="color: #ff4444;">🔴 Kırmızı balon:</span> +9 puan (bazıları tehlikeli!)</p>
+                    <p>• Her seviyede hız artar!</p>
+                </div>
+                <button onclick="startBalloonGame()" style="background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer;">Oyunu Başlat</button>
+            </div>
+        </div>
+    `;
+    setTimeout(() => {
+        initBalloonGame();
+    }, 100);
+    break;
 case 'game2':
 gameFrame.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-xl text-gray-700">Oyun 2 yükleniyor...</p></div>';
 break;
@@ -469,6 +513,381 @@ dy = 1;
 // Start game
 drawGame();
 }
+
+// SATIR 460'a (script sonuna) bu kodu ekleyin:
+
+// Global balon oyunu değişkenleri
+window.balloonGameState = 'start';
+window.balloonScore = 0;
+window.balloonLevel = 1;
+window.balloonBalloons = [];
+window.balloonSlashPath = [];
+window.balloonIsSlashing = false;
+window.balloonAnimationFrameId = null;
+window.balloonCanvas = null;
+window.balloonCtx = null;
+
+// Seviye hedefleri
+window.balloonLevelTargets = [20, 30, 50, 80, 130, 210, 330, 540, 870];
+
+// Arka plan renkleri
+window.balloonBackgroundColors = [
+    ['#1e3c72', '#2a5298'], ['#ff7e5f', '#feb47b'], ['#6a11cb', '#2575fc'],
+    ['#ff9a9e', '#fecfef'], ['#a8edea', '#fed6e3'], ['#ffecd2', '#fcb69f'],
+    ['#667eea', '#764ba2'], ['#f093fb', '#f5576c'], ['#4facfe', '#00f2fe']
+];
+
+// Balon sınıfı
+window.BalloonObject = class BalloonObject {
+    constructor() {
+        this.x = Math.random() * (window.balloonCanvas.width - 60) + 30;
+        this.y = -30;
+        this.radius = 20 + Math.random() * 10;
+        this.type = this.getRandomType();
+        this.speed = this.getSpeed();
+        this.isDangerous = this.checkIfDangerous();
+        this.isPopped = false;
+    }
+
+    getRandomType() {
+        const rand = Math.random();
+        if (rand < 0.7) return 'black';
+        if (rand < 0.85) return 'white';
+        return 'red';
+    }
+
+    getSpeed() {
+        const baseSpeed = 1 + (window.balloonLevel - 1) * 0.3;
+        return Math.random() < 0.8 ? baseSpeed : baseSpeed * 1.8;
+    }
+
+    checkIfDangerous() {
+        if (this.type === 'white') return true;
+        if (this.type === 'red') return Math.random() < 0.3;
+        return false;
+    }
+
+    update() {
+        this.y += this.speed;
+    }
+
+    draw() {
+        if (this.isPopped) return;
+
+        window.balloonCtx.beginPath();
+        window.balloonCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        
+        if (this.type === 'black') {
+            window.balloonCtx.fillStyle = '#333';
+        } else if (this.type === 'white') {
+            window.balloonCtx.fillStyle = '#fff';
+        } else {
+            window.balloonCtx.fillStyle = '#ff4444';
+        }
+        
+        window.balloonCtx.fill();
+        window.balloonCtx.strokeStyle = '#000';
+        window.balloonCtx.lineWidth = 2;
+        window.balloonCtx.stroke();
+
+        // Balon ipi
+        window.balloonCtx.beginPath();
+        window.balloonCtx.moveTo(this.x, this.y + this.radius);
+        window.balloonCtx.lineTo(this.x, this.y + this.radius + 20);
+        window.balloonCtx.strokeStyle = '#666';
+        window.balloonCtx.lineWidth = 1;
+        window.balloonCtx.stroke();
+
+        // Tehlikeli balonlar için uyarı
+        if (this.isDangerous && this.type === 'red') {
+            window.balloonCtx.fillStyle = '#ffff00';
+            window.balloonCtx.font = '12px Arial';
+            window.balloonCtx.textAlign = 'center';
+            window.balloonCtx.fillText('!', this.x, this.y - this.radius - 5);
+        }
+    }
+
+    checkCollisionWithSlash(slashPoints) {
+        for (let point of slashPoints) {
+            const dx = point.x - this.x;
+            const dy = point.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < this.radius + 5) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pop() {
+        this.isPopped = true;
+        window.playBalloonSlashSound();
+        
+        if (this.type === 'black') {
+            window.balloonScore += 1;
+        } else if (this.type === 'white') {
+            window.balloonScore += 3;
+        } else if (this.type === 'red') {
+            window.balloonScore += 9;
+        }
+        
+        window.updateBalloonUI();
+        window.checkBalloonLevelUp();
+    }
+
+    isOffScreen() {
+        return this.y > window.balloonCanvas.height + 50;
+    }
+
+    reachedBottom() {
+        return this.y > window.balloonCanvas.height - this.radius;
+    }
+};
+
+// Ses efekti
+window.playBalloonSlashSound = function() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        console.log('Ses çalınamadı:', e);
+    }
+};
+
+// Arka plan çiz
+window.drawBalloonBackground = function() {
+    const colors = window.balloonBackgroundColors[Math.min(window.balloonLevel - 1, window.balloonBackgroundColors.length - 1)];
+    const gradient = window.balloonCtx.createLinearGradient(0, 0, window.balloonCanvas.width, window.balloonCanvas.height);
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(1, colors[1]);
+    
+    window.balloonCtx.fillStyle = gradient;
+    window.balloonCtx.fillRect(0, 0, window.balloonCanvas.width, window.balloonCanvas.height);
+    
+    // Basit desen
+    window.balloonCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    for (let i = 0; i < 20; i++) {
+        const x = (i * 100 + Date.now() * 0.01) % (window.balloonCanvas.width + 100);
+        const y = (i * 80) % window.balloonCanvas.height;
+        window.balloonCtx.beginPath();
+        window.balloonCtx.arc(x, y, 3, 0, Math.PI * 2);
+        window.balloonCtx.fill();
+    }
+};
+
+// Çizgi çiz
+window.drawBalloonSlash = function() {
+    if (window.balloonSlashPath.length < 2) return;
+    
+    window.balloonCtx.strokeStyle = '#ffff00';
+    window.balloonCtx.lineWidth = 4;
+    window.balloonCtx.lineCap = 'round';
+    window.balloonCtx.lineJoin = 'round';
+    window.balloonCtx.shadowColor = '#ffff00';
+    window.balloonCtx.shadowBlur = 10;
+    
+    window.balloonCtx.beginPath();
+    window.balloonCtx.moveTo(window.balloonSlashPath[0].x, window.balloonSlashPath[0].y);
+    
+    for (let i = 1; i < window.balloonSlashPath.length; i++) {
+        window.balloonCtx.lineTo(window.balloonSlashPath[i].x, window.balloonSlashPath[i].y);
+    }
+    
+    window.balloonCtx.stroke();
+    window.balloonCtx.shadowBlur = 0;
+};
+
+// Balon oluştur
+window.createBalloonBalloon = function() {
+    if (Math.random() < 0.02 + window.balloonLevel * 0.005) {
+        window.balloonBalloons.push(new window.BalloonObject());
+    }
+};
+
+// UI güncelle
+window.updateBalloonUI = function() {
+    const scoreEl = document.getElementById('balloonScore');
+    const levelEl = document.getElementById('balloonLevel');
+    const targetEl = document.getElementById('balloonTarget');
+    
+    if (scoreEl) scoreEl.textContent = window.balloonScore;
+    if (levelEl) levelEl.textContent = window.balloonLevel;
+    if (targetEl) targetEl.textContent = window.balloonLevelTargets[window.balloonLevel - 1] || 'MAX';
+};
+
+// Seviye kontrolü
+window.checkBalloonLevelUp = function() {
+    if (window.balloonLevel <= window.balloonLevelTargets.length && window.balloonScore >= window.balloonLevelTargets[window.balloonLevel - 1]) {
+        window.balloonLevel++;
+        window.updateBalloonUI();
+    }
+};
+
+// Oyun döngüsü
+window.balloonGameLoop = function() {
+    if (window.balloonGameState !== 'playing') return;
+    
+    window.drawBalloonBackground();
+    window.createBalloonBalloon();
+    
+    for (let i = window.balloonBalloons.length - 1; i >= 0; i--) {
+        const balloon = window.balloonBalloons[i];
+        balloon.update();
+        balloon.draw();
+        
+        if (balloon.isOffScreen()) {
+            window.balloonBalloons.splice(i, 1);
+            continue;
+        }
+        
+        if (balloon.reachedBottom() && !balloon.isPopped) {
+            if (balloon.isDangerous) {
+                window.balloonGameOver();
+                return;
+            }
+        }
+        
+        if (window.balloonSlashPath.length > 0 && balloon.checkCollisionWithSlash(window.balloonSlashPath) && !balloon.isPopped) {
+            balloon.pop();
+        }
+    }
+    
+    window.drawBalloonSlash();
+    
+    if (window.balloonSlashPath.length > 10) {
+        window.balloonSlashPath = window.balloonSlashPath.slice(-5);
+    }
+    
+    window.balloonAnimationFrameId = requestAnimationFrame(window.balloonGameLoop);
+};
+
+// Event pozisyonu al
+window.getBalloonEventPos = function(e) {
+    const rect = window.balloonCanvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    return {
+        x: (clientX - rect.left) * (window.balloonCanvas.width / rect.width),
+        y: (clientY - rect.top) * (window.balloonCanvas.height / rect.height)
+    };
+};
+
+// Canvas boyutunu ayarla
+window.resizeBalloonCanvas = function() {
+    const container = window.balloonCanvas.parentElement;
+    window.balloonCanvas.width = container.clientWidth;
+    window.balloonCanvas.height = container.clientHeight;
+};
+
+// Oyun başlat
+window.startBalloonGame = function() {
+    window.balloonGameState = 'playing';
+    const startScreen = document.getElementById('balloonStartScreen');
+    if (startScreen) startScreen.style.display = 'none';
+    window.balloonGameLoop();
+};
+
+// Oyun bitti
+window.balloonGameOver = function() {
+    window.balloonGameState = 'gameOver';
+    if (window.balloonAnimationFrameId) {
+        cancelAnimationFrame(window.balloonAnimationFrameId);
+    }
+    
+    const finalScoreEl = document.getElementById('balloonFinalScore');
+    const finalLevelEl = document.getElementById('balloonFinalLevel');
+    const gameOverEl = document.getElementById('balloonGameOver');
+    
+    if (finalScoreEl) finalScoreEl.textContent = window.balloonScore;
+    if (finalLevelEl) finalLevelEl.textContent = window.balloonLevel;
+    if (gameOverEl) gameOverEl.style.display = 'block';
+};
+
+// Oyunu yeniden başlat
+window.restartBalloonGame = function() {
+    window.balloonScore = 0;
+    window.balloonLevel = 1;
+    window.balloonBalloons = [];
+    window.balloonSlashPath = [];
+    window.balloonIsSlashing = false;
+    
+    window.updateBalloonUI();
+    
+    const gameOverEl = document.getElementById('balloonGameOver');
+    if (gameOverEl) gameOverEl.style.display = 'none';
+    
+    window.balloonGameState = 'playing';
+    window.balloonGameLoop();
+};
+
+// Oyunu başlat
+window.initBalloonGame = function() {
+    window.balloonCanvas = document.getElementById('balloonCanvas');
+    if (!window.balloonCanvas) {
+        console.error('Balon canvas bulunamadı!');
+        return;
+    }
+    
+    window.balloonCtx = window.balloonCanvas.getContext('2d');
+    window.resizeBalloonCanvas();
+    
+    window.addEventListener('resize', window.resizeBalloonCanvas);
+    
+    // Mouse olayları
+    window.balloonCanvas.addEventListener('mousedown', (e) => {
+        if (window.balloonGameState !== 'playing') return;
+        window.balloonIsSlashing = true;
+        window.balloonSlashPath = [window.getBalloonEventPos(e)];
+    });
+
+    window.balloonCanvas.addEventListener('mousemove', (e) => {
+        if (window.balloonGameState !== 'playing' || !window.balloonIsSlashing) return;
+        window.balloonSlashPath.push(window.getBalloonEventPos(e));
+    });
+
+    window.balloonCanvas.addEventListener('mouseup', () => {
+        window.balloonIsSlashing = false;
+        setTimeout(() => window.balloonSlashPath = [], 100);
+    });
+
+    // Touch olayları
+    window.balloonCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (window.balloonGameState !== 'playing') return;
+        window.balloonIsSlashing = true;
+        window.balloonSlashPath = [window.getBalloonEventPos(e)];
+    });
+
+    window.balloonCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (window.balloonGameState !== 'playing' || !window.balloonIsSlashing) return;
+        window.balloonSlashPath.push(window.getBalloonEventPos(e));
+    });
+
+    window.balloonCanvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        window.balloonIsSlashing = false;
+        setTimeout(() => window.balloonSlashPath = [], 100);
+    });
+    
+    window.updateBalloonUI();
+    console.log('Balon oyunu başlatıldı!');
+};
+
 });
 </script>
 </body>
